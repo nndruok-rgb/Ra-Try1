@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRY STORE - តំបន់បុកពេជ្រ</title>
+<style>
+body { font-family: 'Khmer OS Battambang', sans-serif; background: #0a0a12; color: white; text-align: center; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+.container { background: #16213e; padding: 30px; border-radius: 20px; box-shadow: 0 0 20px rgba(233, 69, 96, 0.4); max-width: 400px; width: 90%; }
+h1 { color: #e94560; margin: 0; font-size: 28px; }
+p.subtitle { color: #888; font-size: 13px; margin-bottom: 25px; }
+.game-selection { display: flex; gap: 10px; margin-bottom: 20px; }
+.game-card { flex: 1; padding: 15px; background: #1a1a2e; border: 2px solid transparent; border-radius: 15px; cursor: pointer; transition: 0.3s; font-weight: bold; }
+.game-card.active { border-color: #00d2ff; background: #0f3460; box-shadow: 0 0 10px rgba(0, 210, 255, 0.3); }
+input, select { padding: 12px; border-radius: 10px; border: 1px solid #4e4e6a; width: 100%; margin-bottom: 15px; background: #1a1a2e; color: white; box-sizing: border-box; outline: none; }
+button { padding: 15px; background: #e94560; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; transition: 0.3s; }
+button:hover { background: #ff5e78; }
+
+#paymentModal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; }
+.modal-content { background: white; color: #333; padding: 25px; border-radius: 25px; width: 85%; max-width: 320px; }
+.qr-img { width: 100%; border-radius: 15px; margin: 15px 0; border: 1px solid #ddd; }
+.confirm-btn { background: #0088cc; color: white; margin-top: 10px; padding: 12px; border-radius: 10px; width: 100%; border: none; cursor: pointer; font-weight: bold; }
+.total-price { color: #e94560; font-size: 24px; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>TRY STORE</h1>
+<p class="subtitle">បុកពេជ្រលឿន ទំនុកចិត្ត ១០០%</p>
+
+<div class="game-selection">
+<div class="game-card" onclick="selectGame(this, 'Mobile Legends')">MLBB</div>
+<div class="game-card" onclick="selectGame(this, 'Free Fire')">Free Fire</div>
+</div>
+
+<input type="text" id="userId" placeholder="បញ្ចូល User ID">
+<select id="diamondAmount">
+<option value="">-- ជ្រើសរើសចំនួនពេជ្រ --</option>
+<option value="86 Diamonds - $1.50">86 Diamonds - $1.50</option>
+<option value="172 Diamonds - $3.00">172 Diamonds - $3.00</option>
+<option value="257 Diamonds - $4.50">257 Diamonds - $4.50</option>
+<option value="706 Diamonds - $10.00">706 Diamonds - $10.00</option>
+</select>
+<button onclick="showPayment()">បន្តទៅការបង់ប្រាក់</button>
+</div>
+
+<div id="paymentModal">
+<div class="modal-content">
+<h3 style="margin:0; color:#1a1a2e;">ស្កែនដើម្បីបង់ប្រាក់</h3>
+<p style="margin:5px 0;">តម្លៃសរុប៖ <span class="total-price" id="displayPrice">$0.00</span></p>
+
+<img src="https://i.ibb.co/67jpBsZL/image.png" class="qr-img">
+
+<p style="font-size: 13px; color: #666; margin-bottom: 15px;">បង់រួចចុចប៊ូតុងខាងក្រោមដើម្បីបញ្ជូនវិក្កយបត្រមកយើងខ្ញុំ</p>
+<button class="confirm-btn" onclick="sendToTelegram()">រួចរាល់ & បញ្ជូនព័ត៌មាន</button>
+<button style="background:none; border:none; color:#888; margin-top:10px; cursor:pointer;" onclick="document.getElementById('paymentModal').style.display='none'">បោះបង់</button>
+</div>
+</div>
+
+<script>
+let selectedGame = "";
+// ដាក់ Username Telegram របស់អ្នកនៅទីនេះ (កុំដាក់សញ្ញា @)
+const MY_TELEGRAM_USER = "trystoremii"; 
+
+function selectGame(el, name) {
+document.querySelectorAll('.game-card').forEach(c => c.classList.remove('active'));
+el.classList.add('active');
+selectedGame = name;
+}
+
+function showPayment() {
+const userId = document.getElementById('userId').value;
+const amountStr = document.getElementById('diamondAmount').value;
+
+if (!selectedGame || !userId || !amountStr) {
+alert("❌ សូមបំពេញព័ត៌មានឱ្យគ្រប់គ្រាន់!");
+return;
+}
+
+document.getElementById('displayPrice').innerText = amountStr.split('-')[1];
+document.getElementById('paymentModal').style.display = 'flex';
+}
+
+function sendToTelegram() {
+const userId = document.getElementById('userId').value;
+const amountStr = document.getElementById('diamondAmount').value;
+
+const message = `ជំរាបសួរ TRY STORE! ខ្ញុំបានបង់ប្រាក់រួចហើយ។%0A🎮 ហ្គេម: ${selectedGame}%0A🆔 ID: ${userId}%0A💎 កញ្ចប់: ${amountStr}`;
+
+// បើកទៅកាន់ Telegram ផ្ទាល់ខ្លួនរបស់អ្នក
+const telegramUrl = `https://t.me/${MY_TELEGRAM_USER}?text=${message}`;
+window.location.href = telegramUrl;
+}
+</script>
+
+</body>
+</html>
